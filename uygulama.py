@@ -25,7 +25,7 @@ TEXTS = {
     "time_24h": {"tr": "Bugün (24s)", "en": "Today (24h)"},
     "time_7d": {"tr": "Bu Hafta (7g)", "en": "This Week (7d)"},
     "time_30d": {"tr": "Bu Ay (30g)", "en": "This Month (30d)"},
-    "all_news": {"tr": "🌟 Tüm Gündem", "en": "🌟 All Stories"},
+    "all_news": {"tr": "Tüm Gündem", "en": "All Stories"},
     "agenda": {"tr": "Gündem", "en": "Top Stories"},
     "inspect": {"tr": "İncele", "en": "Inspect"},
     "inspect_details": {"tr": "İncele", "en": "Inspect"},
