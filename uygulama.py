@@ -108,11 +108,11 @@ def veri_yukle():
         if "Gorsel_URL" not in df.columns:
             df["Gorsel_URL"] = ""
         if "Tarih" in df.columns:
-            df["Analiz_Tarihi"] = pd.to_datetime(df["Tarih"], errors="coerce")
+            df["Analiz_Tarihi"] = pd.to_datetime(df["Tarih"], errors="coerce", utc=True).dt.tz_localize(None)
         elif "Analiz_Tarihi" not in df.columns:
             df["Analiz_Tarihi"] = pd.Timestamp.now()
         else:
-            df["Analiz_Tarihi"] = pd.to_datetime(df["Analiz_Tarihi"], errors="coerce")
+            df["Analiz_Tarihi"] = pd.to_datetime(df["Analiz_Tarihi"], errors="coerce", utc=True).dt.tz_localize(None)
         return df
     except FileNotFoundError:
         return pd.DataFrame()
@@ -139,7 +139,8 @@ if secilen_zaman == TEXTS["time_7d"][lang]:
 elif secilen_zaman == TEXTS["time_30d"][lang]:
     df = df_ham[df_ham["Analiz_Tarihi"] >= (su_an - pd.Timedelta(days=30))]
 else:
-    df = df_ham 
+    # 24 saat (Bugun) secenegi
+    df = df_ham[df_ham["Analiz_Tarihi"] >= (su_an - pd.Timedelta(days=1))]
 
 zaman_etiketi = secilen_zaman if secilen_zaman else TEXTS["time_24h"][lang]
 baslik_eki = f" <span style='color:#777; font-size:0.6em; font-weight:normal;'>{zaman_etiketi}</span>"
