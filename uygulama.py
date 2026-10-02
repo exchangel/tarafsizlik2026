@@ -17,7 +17,7 @@ TEXTS = {
     "title": {"tr": "Tarafsızlık Türkiye", "en": "Tarafsızlık Türkiye"},
     "subtitle": {"tr": "Türkiye medyasının olaylara editoryal bakış açısını analiz eden tarafsız platform.", "en": "An objective platform analyzing the editorial perspectives of Turkish media on current events."},
     "what_is_it": {
-        "tr": "<b>Nedir?</b> Yapay zeka ile 36 ulusal kaynağı tarayıp gruplayan analiz platformu. Renkli çubuklar haberin hangi editoryal kutup tarafından sahiplenildiğini, soldaki <b>'Kör Noktalar'</b> ise bir tarafın kasten görmezden geldiği (sansürlediği) gündemleri gösterir.",
+        "tr": "<b>Nedir?</b> Yapay zeka ile 36 ulusal kaynağı tarayıp gruplayan analiz platformu. Renkli çubuklar haberin hangi editoryal kutup tarafından sahiplenildiğini, <b>'Kör Noktalar'</b> ise bir tarafın kasten görmezden geldiği (sansürlediği) gündemleri gösterir.",
         "en": "<b>What is it?</b> AI-powered media analysis scanning 36 national sources. Colored bars show coverage ratio by editorial poles, while <b>'Blindspots'</b> on the left reveal crucial stories deliberately ignored by one side."
     },
     "filter": {"tr": "Konu Filtresi", "en": "Topic Filter"},
