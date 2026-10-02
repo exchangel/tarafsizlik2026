@@ -30,7 +30,7 @@ TEXTS = {
     "inspect": {"tr": "İncele", "en": "Inspect"},
     "inspect_details": {"tr": "İncele", "en": "Inspect"},
     "blindspots": {"tr": "Kör Noktalar", "en": "Blindspots"},
-    "blindspots_desc": {"tr": "Yüzde 10'un altında yer verilen gündemler.", "en": "Crucial stories with less than 10% coverage."},
+    "blindspots_desc": {"tr": "Bir kutbun (Sağ/Sol) kasıtlı olarak görmezden geldiği veya %10'dan az yer verdiği kritik haberler.", "en": "Crucial stories deliberately ignored or given <10% coverage by one editorial pole."},
     "missed_left": {"tr": "Solun Kaçırdıkları", "en": "Missed by Left"},
     "missed_right": {"tr": "Sağın Kaçırdıkları", "en": "Missed by Right"},
     "left_cov": {"tr": "Sol Kapsamı", "en": "Left Cov."},
@@ -40,6 +40,7 @@ TEXTS = {
     "no_right_miss": {"tr": "Şu an sağ basının < %10 atladığı gündem yok.", "en": "Currently no major blindspots for the Right media."},
     "view_all_sources": {"tr": "Tüm Kaynakları Gör", "en": "View All Sources"},
     "headlines": {"tr": "Manşetler", "en": "Headlines"},
+    "neutral_summary": {"tr": "Tarafsız Özet", "en": "Neutral Summary"},
     "info_btn": {"tr": "Bilgi", "en": "Info"}
 }
 
@@ -228,7 +229,8 @@ def haber_detayi_goster(grup_istatistik):
     grup_ozeti = grup_istatistik.get("Grup_Ozeti", "")
     
     if grup_ozeti:
-        st.markdown(f"<div style='background-color: #2e2e2e; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #777; font-size: 0.95em;'>{grup_ozeti}</div>", unsafe_allow_html=True)
+        prefix = TEXTS["neutral_summary"][lang]
+        st.markdown(f"<div style='background-color: #2e2e2e; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #777; font-size: 0.95em;'><b>{prefix}:</b> {grup_ozeti}</div>", unsafe_allow_html=True)
     
     gorus_dagilimi = verisi["Gorus_Acisi"].value_counts().reset_index()
     if is_en:
@@ -252,9 +254,17 @@ def haber_detayi_goster(grup_istatistik):
     center_text = f"{toplam}<br>Sources" if is_en else f"{toplam}<br>Kaynak"
     fig.update_layout(
         annotations=[dict(text=center_text, x=0.5, y=0.5, font_size=20, showarrow=False)],
-        margin=dict(t=20, b=20, l=20, r=20),
-        height=300,
-        showlegend=False
+        margin=dict(t=20, b=10, l=20, r=20),
+        height=320,
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="top",
+            y=-0.1,
+            xanchor="center",
+            x=0.5,
+            font=dict(size=10)
+        )
     )
     st.plotly_chart(fig, use_container_width=True)
     
@@ -339,6 +349,8 @@ def kor_noktalari_listele(kn_listesi, renk_kodu, dil_metni, p_metni):
         st.markdown(f"**{hk['Grup_Basligi']}**")
         st.markdown(cizgi_cubuk_olustur(hk["Muhalif"], hk["Merkez"], hk["Muhafazakar"], hk["Toplam"]), unsafe_allow_html=True)
         st.markdown(f"<span style='font-size:0.85em; color:{renk_kodu}; font-weight:bold;'>%{hk['KorNokta_Oran']} {p_metni}</span>", unsafe_allow_html=True)
+        with st.expander(TEXTS["inspect_details"][lang]):
+            haber_detayi_goster(hk)
         st.write("---")
         gosterilen_sayi += 1
         
@@ -348,6 +360,8 @@ def kor_noktalari_listele(kn_listesi, renk_kodu, dil_metni, p_metni):
                 st.markdown(f"**{hk['Grup_Basligi']}**")
                 st.markdown(cizgi_cubuk_olustur(hk["Muhalif"], hk["Merkez"], hk["Muhafazakar"], hk["Toplam"]), unsafe_allow_html=True)
                 st.markdown(f"<span style='font-size:0.85em; color:{renk_kodu}; font-weight:bold;'>%{hk['KorNokta_Oran']} {p_metni}</span>", unsafe_allow_html=True)
+                with st.expander(TEXTS["inspect_details"][lang]):
+                    haber_detayi_goster(hk)
                 st.write("---")
 
 with col_sag:
