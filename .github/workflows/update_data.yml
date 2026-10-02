@@ -2,9 +2,9 @@ name: Haberleri Guncelle ve Analiz Et
 
 on:
   schedule:
-    # Gunde 3 kez calisir: 06:00, 14:00, 22:00 (UTC zaman dilimine gore ayarlanmistir, Turkiye saati icin +3)
-    # Turkiye saati ile 09:00, 17:00, 01:00'e denk gelir.
-    - cron: '0 6,14,22 * * *'
+    # Gunde 3 kez calisir: 06:15, 14:15, 22:15 (UTC)
+    # Turkiye saati ile 09:15, 17:15, 01:15'e denk gelir. Github Action yogunluguna takilmamak icin ceyrek gecelere ayarlandi.
+    - cron: '15 6,14,22 * * *'
   workflow_dispatch: # Manuel tetikleme butonu ekler
 
 jobs:
