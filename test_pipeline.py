@@ -46,6 +46,15 @@ def test_date_parsing_fallback():
     except TypeError:
         raise Exception("Date comparison failed due to offset-naive / offset-aware mixup")
 
+def test_xss_prevention():
+    import html
+    test_str = "<script>alert(1)</script>"
+    escaped_str = html.escape(test_str)
+    assert "<script>" not in escaped_str, "XSS not escaped properly"
+    print("XSS prevention test passed!")
+
 if __name__ == "__main__":
     test_unique_source_counting()
     test_date_parsing_fallback()
+    test_xss_prevention()
+

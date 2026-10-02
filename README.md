@@ -1,35 +1,32 @@
-# Tarafsızlık Türkiye (Objective Turkey)
+﻿# Tarafsızlık Türkiye (Objective Turkey)
 
-An objective, AI-powered media analysis platform that clusters current events across the Turkish media landscape to reveal editorial stances and coverage blindspots.
+A media analysis platform that aggregates and clusters news from 36 Turkish news sources to identify editorial stances and differences in coverage.
 
 ## Live Demo
 [tarafsizlik2026.streamlit.app](https://tarafsizlik2026.streamlit.app/)
 
 ## Overview
-In todays highly polarized media environment, it's often difficult to get a complete picture of current events. **Tarafsızlık Türkiye** automatically scrapes news from 36 national sources across the political spectrum (Left/Opposition, Center/Independent, Right/Pro-Government). 
+**Tarafsızlık Türkiye** collects news articles from 36 national RSS feeds spanning various political alignments (Left/Opposition, Center/Independent, Right/Pro-Government). 
 
-Instead of relying on manual tagging, the platform utilizes AI to intelligently group articles discussing the exact same event. It then visualizes the editorial coverage ratio for each topic and highlights "Blindspots" —crucial events that are heavily covered by one side but completely ignored by the other.
+The platform uses LLM-based clustering (Google Gemini) to group articles covering the same event. It provides a visual breakdown of editorial coverage per topic and highlights "Blindspots" — events that are covered by one political alignment but omitted by another.
 
-## Architecture & Automation
-This project is designed to be a fully autonomous, serverless, and zero-cost:
-- **Data Ingestion (`veri_cekici.py`):** Periodically fetches RSS feeds from 36 sources. Built with an incremental design to fetch only new data and prevent duplicates.
-- **AI Processing (`ai_analiz.py`):** Uses Google Gemini to group identical events and assign standardized tags. Enforces a 30-day rolling window to keep the dataset lightweight.
-- **CI/CD Pipeline (GitHub Actions):** Runs automatically 3 times a day via Cron jobs. The workflow triggers data scraping, runs the AI analysis, and pushes the updated dataset back to the repository.
-- **Frontend (Streamlit):** A responsive, multi-language (TR/EN) web application directly linked to the GitHub repository. Any automated data update instantly reflects on the live site.
+## Architecture
+- **Data Ingestion (`veri_cekici.py`):** Fetches RSS feeds incrementally to prevent duplicate processing.
+- **Data Processing (`ai_analiz.py`):** Uses Google Gemini via API to cluster identical events and assign standardized tags. Enforces a 30-day rolling window to manage dataset size.
+- **CI/CD Pipeline (GitHub Actions):** Scheduled via cron to run 3 times a day. Triggers data scraping, runs the clustering, and commits the updated dataset.
+- **Frontend (Streamlit):** A responsive, multi-language (TR/EN) web application directly linked to the repository. 
 
-## Tech Used
-- **Python**
-- **Streamlit** (UI & Cloud Deployment)
-- **Pandas** (Data manipulation)
-- **Feedparser** (RSS Scraping)
-- **Google GenAI (Gemini)** (NLP clustering)
+## Technology Stack
+- **Python** (Pandas, Feedparser)
+- **Streamlit** (Web UI)
+- **Google GenAI (Gemini)** (Text Clustering)
 - **Plotly** (Data Visualization)
-- **GitHub Actions** (CI/CD & Automation)
+- **GitHub Actions** (Automation)
 
-## Testing & Data Quality
-- **Unique Source Counting:** Validates that if a single media outlet publishes multiple articles on the same topic, it is strictly counted as 1 distinct source in the editorial pie chart to prevent skewed representations (e.g. counting max 36 unique sources instead of 50+ total articles).
-- **Timezone-Agnostic Datetime Parsing:** Standardizes all disparate RSS publication dates (offset-aware and offset-naive) by forcing UTC conversion and localizing to timezone-naive formats to ensure safe, bug-free Pandas time filtering (e.g., 24h, 7d, 30d views).
-- **Incremental Fetching:** Tests ensure the scraping module skips already-processed article links, eliminating duplicate records and optimizing the Gemini API calls so AI only processes the delta.
+## Testing & Validation
+- **Unique Source Counting:** Ensures multiple articles from the same source on a single topic are counted once in the editorial distribution.
+- **Timezone Standardization:** Standardizes mixed RSS publication dates (offset-aware and offset-naive) to UTC and naive formats for consistent filtering (24h, 7d, 30d).
+- **Incremental Fetching:** Verifies that previously processed article links are skipped to reduce unnecessary API calls.
 
 ## Local Setup
 1. Clone the repository:
@@ -45,15 +42,16 @@ This project is designed to be a fully autonomous, serverless, and zero-cost:
    ```bash
    export GEMINI_API_KEY="your_api_key_here"
    ```
-4. Run the data pipeline (if you want to fetch fresh data locally):
+4. Run the data pipeline:
    ```bash
    python veri_cekici.py
    python ai_analiz.py
    ```
-5. Launch the Streamlit app:
+5. Launch the application:
    ```bash
    streamlit run uygulama.py
    ```
 
 ## Author
-Developed by Levent.
+Levent
+
