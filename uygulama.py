@@ -17,8 +17,8 @@ TEXTS = {
     "title": {"tr": "Tarafsızlık Türkiye", "en": "Tarafsızlık Türkiye"},
     "subtitle": {"tr": "Türkiye medyasının olaylara editoryal bakış açısını analiz eden tarafsız platform.", "en": "An objective platform analyzing the editorial perspectives of Turkish media on current events."},
     "what_is_it": {
-        "tr": "Nedir? 36 ulusal haber kaynağını tarayıp aynı olayları yapay zeka ile gruplayan bir analiz platformu. Renkli çubuklar haberin hangi editoryal kutup tarafından ne oranda sahiplenildiğini, sağdaki 'Kör Noktalar' ise bir tarafın tamamen görmezden geldiği haberleri gösterir.",
-        "en": "What is it? An analysis platform that scans 36 national news sources and clusters events using AI. Colored bars show the coverage ratio by editorial poles, while 'Blindspots' reveal stories completely ignored by one side."
+        "tr": "<b>Nedir?</b> Yapay zeka ile 36 ulusal kaynağı tarayıp gruplayan analiz platformu. Renkli çubuklar haberin hangi editoryal kutup tarafından sahiplenildiğini, soldaki <b>'Kör Noktalar'</b> ise bir tarafın kasten görmezden geldiği (sansürlediği) gündemleri gösterir.",
+        "en": "<b>What is it?</b> AI-powered media analysis scanning 36 national sources. Colored bars show coverage ratio by editorial poles, while <b>'Blindspots'</b> on the left reveal crucial stories deliberately ignored by one side."
     },
     "filter": {"tr": "Konu Filtresi", "en": "Topic Filter"},
     "time_filter": {"tr": "Zaman Aralığı", "en": "Timeframe"},
@@ -283,7 +283,7 @@ def gorsel_kutu(gorsel_url, yukseklik="300px"):
 # ==============================================================================
 # ANA EKRAN: GUNDEM VE KOR NOKTALAR
 # ==============================================================================
-col_ana, col_sag = st.columns([3, 1], gap="large")
+col_sag, col_ana = st.columns([1, 3], gap="large")
 
 with col_ana:
     # margin-top: 0 hizalama hatasini gidermek icin eklendi
