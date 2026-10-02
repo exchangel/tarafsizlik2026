@@ -38,6 +38,7 @@ TEXTS = {
     "more_blindspots": {"tr": "Diğer Kör Noktaları Gör", "en": "View More Blindspots"},
     "no_left_miss": {"tr": "Şu an sol basının < %10 atladığı gündem yok.", "en": "Currently no major blindspots for the Left media."},
     "no_right_miss": {"tr": "Şu an sağ basının < %10 atladığı gündem yok.", "en": "Currently no major blindspots for the Right media."},
+    "view_all_sources": {"tr": "Tüm Kaynakları Gör", "en": "View All Sources"},
     "headlines": {"tr": "Manşetler", "en": "Headlines"},
     "info_btn": {"tr": "Bilgi", "en": "Info"}
 }
@@ -148,24 +149,28 @@ baslik_eki = f" <span style='color:#777; font-size:0.6em; font-weight:normal;'>{
 # Gruplama (Sadece zaman filtresine giren data)
 gruplar_istatistik = []
 for grup_adi, grup_verisi in df.groupby("Grup_Basligi"):
-    toplam = len(grup_verisi)
-    gorus_sayilari = grup_verisi["Gorus_Acisi"].value_counts().to_dict()
-    muhalif = gorus_sayilari.get("Muhalif / Eleştirel", 0)
-    merkez = gorus_sayilari.get("Merkez / Bağımsız", 0)
-    muhafazakar = gorus_sayilari.get("Muhafazakar / İktidar Çizgisi", 0)
+    # Yeni: Kaynaklara gore tekillestirilmis sayilar
+    muhalif = grup_verisi[grup_verisi["Gorus_Acisi"] == "Muhalif / Eleştirel"]["Kaynak"].nunique()
+    merkez = grup_verisi[grup_verisi["Gorus_Acisi"] == "Merkez / Bağımsız"]["Kaynak"].nunique()
+    muhafazakar = grup_verisi[grup_verisi["Gorus_Acisi"] == "Muhafazakar / İktidar Çizgisi"]["Kaynak"].nunique()
+    toplam_essiz = muhalif + merkez + muhafazakar
     
     gorseller = grup_verisi[grup_verisi["Gorsel_URL"].notna() & (grup_verisi["Gorsel_URL"] != "")]["Gorsel_URL"].tolist()
     gorsel = gorseller[0] if gorseller else VARSAYILAN_GORSEL
     etiketler = str(grup_verisi.iloc[0]["Etiketler"])
     
+    grup_ozeti = grup_verisi.iloc[0]["Grup_Ozeti"] if "Grup_Ozeti" in grup_verisi.columns else ""
+    
     gruplar_istatistik.append({
         "Grup_Basligi": grup_adi,
-        "Toplam": toplam,
+        "Toplam": toplam_essiz,
+        "Gercek_Toplam": len(grup_verisi),
         "Muhalif": muhalif,
         "Merkez": merkez,
         "Muhafazakar": muhafazakar,
         "Gorsel": gorsel,
         "Etiketler": etiketler,
+        "Grup_Ozeti": grup_ozeti,
         "Veri": grup_verisi
     })
 
@@ -220,6 +225,10 @@ def cizgi_cubuk_olustur(muhalif, merkez, muhafazakar, toplam):
 def haber_detayi_goster(grup_istatistik):
     verisi = grup_istatistik["Veri"]
     toplam = grup_istatistik["Toplam"]
+    grup_ozeti = grup_istatistik.get("Grup_Ozeti", "")
+    
+    if grup_ozeti:
+        st.markdown(f"<div style='background-color: #2e2e2e; padding: 12px; border-radius: 6px; margin-bottom: 15px; border-left: 3px solid #777; font-size: 0.95em;'>{grup_ozeti}</div>", unsafe_allow_html=True)
     
     gorus_dagilimi = verisi["Gorus_Acisi"].value_counts().reset_index()
     if is_en:
@@ -249,18 +258,19 @@ def haber_detayi_goster(grup_istatistik):
     )
     st.plotly_chart(fig, use_container_width=True)
     
-    st.markdown(f"#### {TEXTS['headlines'][lang]}")
-    for _, satir in verisi.iterrows():
-        gorus_etiketi = POLARITY_EN[satir["Gorus_Acisi"]] if is_en else satir["Gorus_Acisi"]
-        kaynak = satir["Kaynak"]
-        baslik = satir["Baslik"]
-        link = satir["Link"]
-        renk = RENK_HARITASI.get(satir["Gorus_Acisi"], "#fff")
-        
-        if link:
-            st.markdown(f"- <span style='color:{renk}; font-weight:bold;'>[{kaynak}]</span>: [{baslik}]({link})", unsafe_allow_html=True)
-        else:
-            st.markdown(f"- <span style='color:{renk}; font-weight:bold;'>[{kaynak}]</span>: {baslik}", unsafe_allow_html=True)
+    with st.popover(TEXTS["view_all_sources"][lang], use_container_width=True):
+        st.markdown(f"#### {TEXTS['headlines'][lang]}")
+        for _, satir in verisi.iterrows():
+            gorus_etiketi = POLARITY_EN[satir["Gorus_Acisi"]] if is_en else satir["Gorus_Acisi"]
+            kaynak = satir["Kaynak"]
+            baslik = satir["Baslik"]
+            link = satir["Link"]
+            renk = RENK_HARITASI.get(satir["Gorus_Acisi"], "#fff")
+            
+            if link:
+                st.markdown(f"- <span style='color:{renk}; font-weight:bold;'>[{kaynak}]</span>: [{baslik}]({link})", unsafe_allow_html=True)
+            else:
+                st.markdown(f"- <span style='color:{renk}; font-weight:bold;'>[{kaynak}]</span>: {baslik}", unsafe_allow_html=True)
 
 def gorsel_kutu(gorsel_url, yukseklik="300px"):
     html = f"""

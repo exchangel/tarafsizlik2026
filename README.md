@@ -26,6 +26,11 @@ This project is designed to be a fully autonomous, serverless, and zero-cost:
 - **Plotly** (Data Visualization)
 - **GitHub Actions** (CI/CD & Automation)
 
+## Testing & Data Quality
+- **Unique Source Counting:** Validates that if a single media outlet publishes multiple articles on the same topic, it is strictly counted as 1 distinct source in the editorial pie chart to prevent skewed representations (e.g. counting max 36 unique sources instead of 50+ total articles).
+- **Timezone-Agnostic Datetime Parsing:** Standardizes all disparate RSS publication dates (offset-aware and offset-naive) by forcing UTC conversion and localizing to timezone-naive formats to ensure safe, bug-free Pandas time filtering (e.g., 24h, 7d, 30d views).
+- **Incremental Fetching:** Tests ensure the scraping module skips already-processed article links, eliminating duplicate records and optimizing the Gemini API calls so AI only processes the delta.
+
 ## Local Setup
 1. Clone the repository:
    ```bash

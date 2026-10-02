@@ -57,7 +57,8 @@ GOREVLERIN:
 1. AYNI siyasi, ekonomik, hukuki veya toplumsal olayi/gelismeyi anlatan haberleri tek bir grupta birlestir.
 2. Magazin, kedi-kopek, basit trafik kazalari, hava durumu gibi ulusal gundemle ilgisi olmayan 3. sayfa haberlerini SADECE "Ilgisiz" adli tek bir grupta topla. Bunlara etiket atama.
 3. Her gecerli grup icin nesnel, tarafsiz ve profesyonel bir 'konu_basligi' belirle (Ornek: 'Merkez Bankasi Politika Faizi Karari', 'Anayasa Mahkemesi Karari').
-4. Her grup icin SADECE asagidaki listeden en uygun 1, 2 veya 3 etiketi sec. Bu liste disindan ASLA baska etiket kullanma:
+4. Her grup icin bu olayin tam olarak ne oldugunu anlatan nesnel, tarafsiz ve tek cumlelik kisa bir 'grup_ozeti' yaz.
+5. Her grup icin SADECE asagidaki listeden en uygun 1, 2 veya 3 etiketi sec. Bu liste disindan ASLA baska etiket kullanma:
 {json.dumps(izin_verilen_etiketler, ensure_ascii=False)}
 
 CIKTI FORMATI:
@@ -65,6 +66,7 @@ SADECE asagidaki JSON formatinda cikti ver. Ekstra aciklama metni yazma:
 [
   {{
     "konu_basligi": "Konu Adi",
+    "grup_ozeti": "Olayin tarafsiz ve 1 cumlelik ozeti.",
     "etiketler": ["#etiket1", "#etiket2"],
     "haber_idleri": [0, 5, 12]
   }}
@@ -110,6 +112,7 @@ try:
     # DataFrame alanlarini hazirlama
     df["Grup_Basligi"] = "Grup Yok"
     df["Etiketler"] = ""
+    df["Grup_Ozeti"] = ""
 
     gecerli_grup_sayisi = 0
     eslesen_haber_sayisi = 0
@@ -119,6 +122,7 @@ try:
         konu_basligi = grup.get("konu_basligi", "")
         etiketler = grup.get("etiketler", [])
         haber_idleri = grup.get("haber_idleri", [])
+        ozet = grup.get("grup_ozeti", "")
 
         # "Ilgisiz" veya "İlgisiz" olarak filtrelenen haberleri dahil etmiyoruz
         if konu_basligi not in ["Ilgisiz", "İlgisiz"]:
@@ -127,6 +131,7 @@ try:
                 if haber_id in df.index:
                     df.at[haber_id, "Grup_Basligi"] = konu_basligi
                     df.at[haber_id, "Etiketler"] = ", ".join(etiketler)
+                    df.at[haber_id, "Grup_Ozeti"] = ozet
                     eslesen_haber_sayisi += 1
 
     # Nitelikli haberleri filtreleme
@@ -146,8 +151,7 @@ try:
     # 30 Gunluk pencereyi uygula
     if not df_master.empty and "Tarih" in df_master.columns:
         # Tarih formatlarini duzenle ve 30 gunden eskileri sil
-        # Hata vermemesi icin once string'e sonra datetime'a cevir
-        df_master["Tarih"] = pd.to_datetime(df_master["Tarih"], errors="coerce")
+        df_master["Tarih"] = pd.to_datetime(df_master["Tarih"], errors="coerce", utc=True).dt.tz_localize(None)
         otuz_gun_once = pd.Timestamp.now() - pd.Timedelta(days=30)
         df_master = df_master[df_master["Tarih"] >= otuz_gun_once]
         # Tekrar string'e cevirerek CSV formatini koru
