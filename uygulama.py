@@ -223,7 +223,7 @@ def cizgi_cubuk_olustur(muhalif, merkez, muhafazakar, toplam):
     """
     return html
 
-def haber_detayi_goster(grup_istatistik):
+def haber_detayi_goster(grup_istatistik, anahtar=""):
     verisi = grup_istatistik["Veri"]
     toplam = grup_istatistik["Toplam"]
     grup_ozeti = grup_istatistik.get("Grup_Ozeti", "")
@@ -266,7 +266,7 @@ def haber_detayi_goster(grup_istatistik):
             font=dict(size=10)
         )
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, key=f"pie_{anahtar}")
     
     with st.popover(TEXTS["view_all_sources"][lang], use_container_width=True):
         st.markdown(f"#### {TEXTS['headlines'][lang]}")
@@ -309,7 +309,7 @@ with col_ana:
                 st.markdown(f"<h5 style='margin-bottom:0;'>{h1['Grup_Basligi']}</h5>", unsafe_allow_html=True)
                 st.markdown(cizgi_cubuk_olustur(h1["Muhalif"], h1["Merkez"], h1["Muhafazakar"], h1["Toplam"]), unsafe_allow_html=True)
                 with st.expander(TEXTS["inspect_details"][lang]):
-                    haber_detayi_goster(h1)
+                    haber_detayi_goster(h1, f"gundem_{h1['Grup_Basligi']}")
                     
         if len(gosterilecek_gruplar) > 1:
             h2 = gosterilecek_gruplar[1]
@@ -318,7 +318,7 @@ with col_ana:
                 st.markdown(f"<h5 style='margin-bottom:0;'>{h2['Grup_Basligi']}</h5>", unsafe_allow_html=True)
                 st.markdown(cizgi_cubuk_olustur(h2["Muhalif"], h2["Merkez"], h2["Muhafazakar"], h2["Toplam"]), unsafe_allow_html=True)
                 with st.expander(TEXTS["inspect"][lang]):
-                    haber_detayi_goster(h2)
+                    haber_detayi_goster(h2, f"gundem_{h2['Grup_Basligi']}")
                     
         if len(gosterilecek_gruplar) > 2:
             h3 = gosterilecek_gruplar[2]
@@ -327,22 +327,22 @@ with col_ana:
                 st.markdown(f"<h5 style='margin-bottom:0;'>{h3['Grup_Basligi']}</h5>", unsafe_allow_html=True)
                 st.markdown(cizgi_cubuk_olustur(h3["Muhalif"], h3["Merkez"], h3["Muhafazakar"], h3["Toplam"]), unsafe_allow_html=True)
                 with st.expander(TEXTS["inspect"][lang]):
-                    haber_detayi_goster(h3)
+                    haber_detayi_goster(h3, f"gundem_{h3['Grup_Basligi']}")
                     
         st.write("---")
         
     if len(gosterilecek_gruplar) > 3:
-        for h in gosterilecek_gruplar[3:]:
+        for i, h in enumerate(gosterilecek_gruplar[3:]):
             st.markdown(f"#### {h['Grup_Basligi']}")
             st.markdown(cizgi_cubuk_olustur(h["Muhalif"], h["Merkez"], h["Muhafazakar"], h["Toplam"]), unsafe_allow_html=True)
             with st.expander(TEXTS["inspect"][lang]):
-                haber_detayi_goster(h)
+                haber_detayi_goster(h, f"gundem_liste_{i}_{h['Grup_Basligi']}")
             st.write("")
 
-def kor_noktalari_listele(kn_listesi, renk_kodu, dil_metni, p_metni):
+def kor_noktalari_listele(kn_listesi, renk_kodu, dil_metni, p_metni, taraf_prefix=""):
     ilk = True
     gosterilen_sayi = 0
-    for hk in kn_listesi[:4]:
+    for hk in kn_listesi[:2]:
         if ilk:
             st.markdown(gorsel_kutu(hk["Gorsel"], yukseklik="100px"), unsafe_allow_html=True)
             ilk = False
@@ -350,18 +350,18 @@ def kor_noktalari_listele(kn_listesi, renk_kodu, dil_metni, p_metni):
         st.markdown(cizgi_cubuk_olustur(hk["Muhalif"], hk["Merkez"], hk["Muhafazakar"], hk["Toplam"]), unsafe_allow_html=True)
         st.markdown(f"<span style='font-size:0.85em; color:{renk_kodu}; font-weight:bold;'>%{hk['KorNokta_Oran']} {p_metni}</span>", unsafe_allow_html=True)
         with st.expander(TEXTS["inspect_details"][lang]):
-            haber_detayi_goster(hk)
+            haber_detayi_goster(hk, f"kn_ilk_{taraf_prefix}_{hk['Grup_Basligi']}")
         st.write("---")
         gosterilen_sayi += 1
         
-    if len(kn_listesi) > 4:
-        with st.expander(f"{TEXTS['more_blindspots'][lang]} (+{len(kn_listesi) - 4})"):
-            for hk in kn_listesi[4:]:
+    if len(kn_listesi) > 2:
+        with st.expander(f"{TEXTS['more_blindspots'][lang]} (+{len(kn_listesi) - 2})"):
+            for i, hk in enumerate(kn_listesi[2:]):
                 st.markdown(f"**{hk['Grup_Basligi']}**")
                 st.markdown(cizgi_cubuk_olustur(hk["Muhalif"], hk["Merkez"], hk["Muhafazakar"], hk["Toplam"]), unsafe_allow_html=True)
                 st.markdown(f"<span style='font-size:0.85em; color:{renk_kodu}; font-weight:bold;'>%{hk['KorNokta_Oran']} {p_metni}</span>", unsafe_allow_html=True)
                 with st.expander(TEXTS["inspect_details"][lang]):
-                    haber_detayi_goster(hk)
+                    haber_detayi_goster(hk, f"kn_diger_{taraf_prefix}_{i}_{hk['Grup_Basligi']}")
                 st.write("---")
 
 with col_sag:
@@ -392,7 +392,7 @@ with col_sag:
     st.markdown(f"#### <span style='color:{RENK_HARITASI['Muhalif / Eleştirel']}'>{header_left}</span> {TEXTS['missed_left'][lang].split()[-1]}", unsafe_allow_html=True)
     
     if muhalif_kacirmis:
-        kor_noktalari_listele(muhalif_kacirmis, RENK_HARITASI['Muhalif / Eleştirel'], lang, TEXTS['left_cov'][lang])
+        kor_noktalari_listele(muhalif_kacirmis, RENK_HARITASI['Muhalif / Eleştirel'], lang, TEXTS['left_cov'][lang], "sol")
     else:
         st.info(TEXTS["no_left_miss"][lang])
         
@@ -402,7 +402,7 @@ with col_sag:
     st.markdown(f"#### <span style='color:{RENK_HARITASI['Muhafazakar / İktidar Çizgisi']}'>{header_right}</span> {TEXTS['missed_right'][lang].split()[-1]}", unsafe_allow_html=True)
     
     if muhafazakar_kacirmis:
-         kor_noktalari_listele(muhafazakar_kacirmis, RENK_HARITASI['Muhafazakar / İktidar Çizgisi'], lang, TEXTS['right_cov'][lang])
+         kor_noktalari_listele(muhafazakar_kacirmis, RENK_HARITASI['Muhafazakar / İktidar Çizgisi'], lang, TEXTS['right_cov'][lang], "sag")
     else:
         st.info(TEXTS["no_right_miss"][lang])
 
