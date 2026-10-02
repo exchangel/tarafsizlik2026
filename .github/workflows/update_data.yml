@@ -1,0 +1,47 @@
+name: Haberleri Guncelle ve Analiz Et
+
+on:
+  schedule:
+    # Gunde 3 kez calisir: 06:00, 14:00, 22:00 (UTC zaman dilimine gore ayarlanmistir, Turkiye saati icin +3)
+    # Turkiye saati ile 09:00, 17:00, 01:00'e denk gelir.
+    - cron: '0 6,14,22 * * *'
+  workflow_dispatch: # Manuel tetikleme butonu ekler
+
+jobs:
+  update-data:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Dosya degisikliklerini commit yapabilmesi icin gerekli yetki
+    
+    steps:
+      - name: Repoyu Klonla
+        uses: actions/checkout@v4
+
+      - name: Python Kurulumu
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Bagimliliklari Yukle
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas feedparser google-genai
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Haberleri Cek (veri_cekici.py)
+        run: python veri_cekici.py
+
+      - name: Yapay Zeka ile Analiz Et (ai_analiz.py)
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python ai_analiz.py
+
+      - name: Degisiklikleri Github'a Pushla
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add haber_veriseti.csv analizli_haber_veriseti.csv
+          # Eger yeni veri cekilmediyse commit bos olacagindan hata vermesini engellemek icin diff-index kullanilir
+          git diff-index --quiet HEAD || git commit -m "Otomatik veri guncelleme: $(date +'%Y-%m-%d %H:%M')"
+          git push
